@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic-settings
+python-multipart
+opencv-python-headless
+ultralytics
+mediapipe
+pandas
+numpy
+jinja2
+python-dotenv
+aiosqlite
