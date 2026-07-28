@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Active Learning Analytics - Swinburne Vietnam</title>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar glass-panel">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon"><i class="fa-solid fa-brain"></i></span>
+                    <span class="logo-text">Swinburne AI<br><small>Active Learning</small></span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <ul class="nav-list">
+                    <li class="nav-item active" data-target="dashboard">
+                        <a href="#" class="nav-link">
+                            <i class="fa-solid fa-chart-pie"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-target="video-analysis">
+                        <a href="#" class="nav-link">
+                            <i class="fa-solid fa-video"></i>
+                            <span>Video Analysis</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-target="schedule">
+                        <a href="#" class="nav-link">
+                            <i class="fa-solid fa-calendar-days"></i>
+                            <span>Timetable</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-target="reports">
+                        <a href="#" class="nav-link">
+                            <i class="fa-solid fa-file-contract"></i>
+                            <span>Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-target="settings">
+                        <a href="#" class="nav-link">
+                            <i class="fa-solid fa-gear"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <p>v1.0.0 (Pilot)</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar glass-panel" style="justify-content: flex-end;">
+                <div class="top-bar-right">
+                    <div class="class-selector">
+                        <select id="classSelect">
+                            <option value="TEC004">TEC004 - Advanced Computer Programming</option>
+                            <option value="SE005">SE005 - Linear Algebra</option>
+                            <option value="SE001">SE001 - Electronics 1</option>
+                            <option value="SE002">SE002 - Electronics Lab 1</option>
+                            <option value="AU002">AU002 - Chinese 2</option>
+                            <option value="AU014">AU014 - Physical Education: Vovinam</option>
+                        </select>
+                        <select id="sessionSelect">
+                            <option value="">-- Đang tải session --</option>
+                        </select>
+                        <button class="icon-btn" id="deleteSessionBtn" title="Xóa Video / Session này" style="color: var(--color-danger); border: 1px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.1); padding: 8px 12px; border-radius: 8px; margin-left: 6px;"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                    <div class="notification-wrapper">
+                        <button class="icon-btn notifications" id="notificationBtn">
+                            <i class="fa-regular fa-bell"></i>
+                            <span class="badge" id="notifBadgeCount">3</span>
+                        </button>
+                        <div class="notification-dropdown glass-panel" id="notificationDropdown">
+                            <div class="notif-header">
+                                <h3>Thông báo AI System</h3>
+                                <span class="mark-read" id="markReadBtn" style="cursor: pointer; font-size: 0.75rem; color: var(--color-primary);">Đánh dấu đã đọc</span>
+                            </div>
+                            <div class="notif-body" id="notifBodyList" style="max-height: 280px; overflow-y: auto;">
+                                <div class="notif-item" style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer;">
+                                    <strong style="color: var(--color-success); font-size: 0.8rem;"><i class="fa-solid fa-hand"></i> [AI ALERT] Phát hiện Giơ Tay</strong>
+                                    <p style="font-size: 0.75rem; color: #fff; margin: 2px 0;">Lê Hoàng Thành Đạt giơ tay phát biểu (+10 điểm)</p>
+                                    <span style="font-size: 0.68rem; color: var(--color-text-muted);">1 phút trước</span>
+                                </div>
+                                <div class="notif-item" style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer;">
+                                    <strong style="color: var(--color-primary); font-size: 0.8rem;"><i class="fa-solid fa-video"></i> [HỆ THỐNG] Phân Tích Hoàn Tất</strong>
+                                    <p style="font-size: 0.75rem; color: #fff; margin: 2px 0;">Đã ghi nhận 4 sinh viên (Phát, Đạt, Minh, Long)</p>
+                                    <span style="font-size: 0.68rem; color: var(--color-text-muted);">5 phút trước</span>
+                                </div>
+                                <div class="notif-item" style="padding: 10px; cursor: pointer;">
+                                    <strong style="color: #f59e0b; font-size: 0.8rem;"><i class="fa-solid fa-calendar-check"></i> [TIMETABLE] Đồng Bộ Tuần</strong>
+                                    <p style="font-size: 0.75rem; color: #fff; margin: 2px 0;">Cập nhật 6 môn học Swinburne active learning</p>
+                                    <span style="font-size: 0.68rem; color: var(--color-text-muted);">10 phút trước</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Pages -->
+            <div class="pages-container">
+                <!-- Dashboard Page -->
+                <section id="dashboard" class="page active">
+                    <div class="page-header">
+                        <h2 id="classOverviewTitle">Class Overview: TEC004 - Advanced Computer Programming</h2>
+                        <div class="date-picker">
+                            <i class="fa-regular fa-calendar"></i> <span id="currentRealDate">Hôm nay, 28/07/2026</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Metrics -->
+                    <div class="metrics-grid">
+                        <div class="metric-card glass-panel" id="focusMetricCard" style="cursor: pointer; transition: transform 0.2s;" title="Bấm để lọc mức độ tập trung">
+                            <div class="metric-icon" style="color: var(--color-success);"><i class="fa-solid fa-bullseye"></i></div>
+                            <div class="metric-info">
+                                <h3>Mức Độ Tập Trung</h3>
+                                <div class="metric-value" id="focusMetric">--%</div>
+                            </div>
+                        </div>
+                        <div class="metric-card glass-panel" id="handRaiseMetricCard" style="cursor: pointer; transition: transform 0.2s;" title="Bấm để lọc sinh viên giơ tay">
+                            <div class="metric-icon" style="color: var(--color-primary);"><i class="fa-solid fa-hand"></i></div>
+                            <div class="metric-info">
+                                <h3>Giơ Tay Phát Biểu</h3>
+                                <div class="metric-value" id="handRaiseMetric">--</div>
+                            </div>
+                        </div>
+                        <div class="metric-card glass-panel" id="classStatusMetricCard" style="cursor: pointer; transition: transform 0.2s;" title="Trạng thái tích cực học tập">
+                            <div class="metric-icon" style="color: #3b82f6;"><i class="fa-solid fa-graduation-cap"></i></div>
+                            <div class="metric-info">
+                                <h3>Trạng Thái Lớp Học</h3>
+                                <div class="metric-value" id="classStatusMetric" style="color: var(--color-success); font-size: 1.15rem; font-weight: bold; margin-top: 4px;">TÍCH CỰC</div>
+                            </div>
+                        </div>
+                        <div class="metric-card glass-panel" id="distractedMetricCard" style="cursor: pointer; transition: transform 0.2s;" title="Bấm để xem sinh viên cần chú ý">
+                            <div class="metric-icon" style="color: var(--color-danger);"><i class="fa-solid fa-face-frown"></i></div>
+                            <div class="metric-info">
+                                <h3>Thiếu Tập Trung</h3>
+                                <div class="metric-value" id="distractedMetric">--%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Charts & Layout -->
+                    <div class="dashboard-layout">
+                        <!-- Left Column: Charts -->
+                        <div class="dashboard-left">
+                            <div class="chart-container glass-panel">
+                                <div class="panel-header">
+                                    <h3>Engagement Over Time</h3>
+                                    <select id="engagementMetricFilter" class="metric-filter">
+                                        <option value="focus">Mức độ tập trung</option>
+                                        <option value="handraise">Mức độ giơ tay phát biểu</option>
+                                        <option value="distracted">Mức độ mất tập trung</option>
+                                    </select>
+                                </div>
+                                <div class="canvas-wrapper">
+                                    <canvas id="engagementChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Student List -->
+                        <div class="dashboard-right">
+                            <div class="student-list-container glass-panel" id="studentListContainer">
+                                <div class="panel-header">
+                                    <h3>Danh Sách Sinh Viên</h3>
+                                    <button class="btn-small" id="viewAllStudentsBtn">Xem tất cả</button>
+                                </div>
+                                <div class="list-legend">
+                                    <span>Chọn 1 SV để xem chi tiết</span>
+                                </div>
+                                <ul class="student-list" id="studentList">
+                                    <!-- Populated by JS -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Video Analysis Page -->
+                <section id="video-analysis" class="page">
+                    <div class="page-header">
+                        <h2>Live Video Analysis (Nhận diện AI)</h2>
+                        <div class="controls">
+                            <button class="btn btn-primary" id="startCameraBtn"><i class="fa-solid fa-play"></i> Bật Camera AI</button>
+                            <button class="btn btn-secondary" id="uploadVideoBtn"><i class="fa-solid fa-upload"></i> Tải Video</button>
+                            <input type="file" id="videoFileInput" accept="video/*" style="display: none;">
+                        </div>
+                    </div>
+                    
+                    <div class="video-analysis-layout">
+                        <div class="video-player-container glass-panel">
+                            <div class="camera-status-badge" id="cameraStatusBadge" style="display: none;">
+                                <span class="pulse-dot"></span>
+                                <span id="cameraStatusText">CAMERA AI: ACTIVE - TRACKING & LOCKING TARGETS</span>
+                            </div>
+                            <!-- Placeholder for Video Player -->
+                            <div class="video-placeholder" id="videoPlaceholder">
+                                <i class="fa-solid fa-video-slash fa-3x"></i>
+                                <p id="placeholderText">Đang chờ kết nối Video...</p>
+                            </div>
+                            <video id="videoPlayer" controls style="display: none; width: 100%; height: calc(100% - 60px); border-radius: 8px; margin-bottom: 10px;"></video>
+                            <canvas id="aiCanvasOverlay" style="position: absolute; top: 0; left: 0; width: 100%; height: calc(100% - 60px); pointer-events: none; border-radius: 8px; display: none; z-index: 5;"></canvas>
+                            <div class="player-controls">
+                                <button class="icon-btn" id="playPauseBtn"><i class="fa-solid fa-pause"></i></button>
+                                <div class="timeline">
+                                    <div class="progress" id="playerProgress" style="width: 0%;"></div>
+                                </div>
+                                <span id="playerStatus">Real-time Feed</span>
+                            </div>
+                        </div>
+                        
+                        <div class="live-feed-container glass-panel">
+                            <div class="panel-header">
+                                <h3>Logs Sự Kiện (Live)</h3>
+                                <span class="live-indicator"></span>
+                            </div>
+                            <div class="log-list" id="eventLog">
+                                <div class="log-item empty-log">
+                                    <span class="event info">Chưa có sự kiện nào.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Reports Page -->
+                <section id="reports" class="page">
+                    <div class="page-header">
+                        <div>
+                            <h2>Báo Cáo & Phân Tích (Session Reports)</h2>
+                            <p style="color: var(--color-text-muted); font-size: 0.9rem; margin-top: 4px;">Xuất báo cáo đánh giá năng lực & mức độ tương tác Active Learning của lớp học</p>
+                        </div>
+                        <div class="controls">
+                            <button class="btn btn-primary" id="exportPdfBtn" style="background: var(--swinburne-red); border: none;">
+                                <i class="fa-solid fa-file-pdf"></i> Xuất Báo Cáo PDF
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Executive Summary Grid -->
+                    <div class="metrics-grid" style="margin-bottom: 1.5rem;">
+                        <div class="metric-card glass-panel">
+                            <div class="card-icon success"><i class="fa-solid fa-graduation-cap"></i></div>
+                            <div class="card-info">
+                                <h3>Sinh Viên Đánh Giá</h3>
+                                <div class="value" id="reportTotalStudents">10</div>
+                                <div class="trend positive"><i class="fa-solid fa-check"></i> 100% Điểm danh AI</div>
+                            </div>
+                        </div>
+                        <div class="metric-card glass-panel">
+                            <div class="card-icon primary"><i class="fa-solid fa-award"></i></div>
+                            <div class="card-info">
+                                <h3>Điểm Trung Bình Lớp</h3>
+                                <div class="value" id="reportAvgScore">82.5</div>
+                                <div class="trend positive"><i class="fa-solid fa-arrow-up"></i> Xếp loại Tốt</div>
+                            </div>
+                        </div>
+                        <div class="metric-card glass-panel">
+                            <div class="card-icon warning"><i class="fa-solid fa-hand-holding-hand"></i></div>
+                            <div class="card-info">
+                                <h3>Tổng Lượt Phát Biểu</h3>
+                                <div class="value" id="reportTotalRaises">24</div>
+                                <div class="trend positive"><i class="fa-solid fa-fire"></i> Mức tương tác cao</div>
+                            </div>
+                        </div>
+                        <div class="metric-card glass-panel">
+                            <div class="card-icon danger"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            <div class="card-info">
+                                <h3>Cần Chú Ý</h3>
+                                <div class="value" id="reportAttentionCount">1</div>
+                                <div class="trend negative"><i class="fa-solid fa-user-minus"></i> Cần hỗ trợ học tập</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Printable Report Table Container -->
+                    <div class="glass-panel" style="padding: 1.5rem;" id="printableReportContainer">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+                            <div>
+                                <h3 style="font-size: 1.2rem; color: var(--color-text-heading);">Bảng Tổng Hợp Đánh Giá Active Learning</h3>
+                                <p style="color: var(--color-text-muted); font-size: 0.85rem;" id="reportSessionTitle">Session: CS101 - Advanced Computer Programming</p>
+                            </div>
+                            <span class="score-badge success" id="reportDateBadge">Hôm nay</span>
+                        </div>
+
+                        <div style="overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid var(--border-color); color: var(--color-text-muted);">
+                                        <th style="padding: 10px;">STT</th>
+                                        <th style="padding: 10px;">Mã SV</th>
+                                        <th style="padding: 10px;">Họ & Tên</th>
+                                        <th style="padding: 10px;">Giơ Tay Phát Biểu</th>
+                                        <th style="padding: 10px;">Mất Tập Trung</th>
+                                        <th style="padding: 10px;">Điểm Active Learning</th>
+                                        <th style="padding: 10px;">Xếp Loại</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reportTableBody">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Weekly Schedule Page -->
+                <section id="schedule" class="page">
+                    <div class="page-header">
+                        <div>
+                            <h2><i class="fa-solid fa-calendar-days" style="color: var(--swinburne-red); margin-right: 8px;"></i> Timetable (Thời Khóa Biểu Tuần)</h2>
+                            <p style="color: var(--color-text-muted); font-size: 0.88rem; margin-top: 4px;">Thời khóa biểu học tập môn học chuẩn Swinburne - Click vào môn học để mở phân tích Video tương ứng</p>
+                        </div>
+                        <div class="controls">
+                            <span class="score-badge primary" style="padding: 8px 16px; font-size: 0.88rem;"><i class="fa-solid fa-graduation-cap"></i> Semester: Spring 2026</span>
+                        </div>
+                    </div>
+
+                    <!-- 7-Day Timetable Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; margin-bottom: 2rem; overflow-x: auto;">
+                        
+                        <!-- Monday -->
+                        <div class="glass-panel" style="padding: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 12px;">
+                                <div><span class="timetable-day-num" data-day-offset="0" style="background: var(--swinburne-red); color: #fff; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.8rem;">27</span> <strong style="font-size: 0.85rem; color: #fff;">Monday</strong></div>
+                                <span style="font-size: 0.72rem; color: var(--color-text-muted);">1 class</span>
+                            </div>
+                            
+                            <div class="schedule-card" data-course="AU002" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-left: 3px solid #f59e0b; padding: 10px; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <strong style="color: var(--color-warning); font-size: 0.85rem;">AU002</strong>
+                                    <span style="font-size: 0.7rem; color: var(--color-text-muted);">3:00 PM - 5:00 PM</span>
+                                </div>
+                                <span class="score-badge warning" style="font-size: 0.65rem; padding: 2px 6px; margin-bottom: 6px; display: inline-block;">Lecture</span>
+                                <p style="font-size: 0.8rem; font-weight: bold; color: #fff; margin: 4px 0;">Chinese 2 - Expression & Application</p>
+                                <div style="font-size: 0.72rem; color: var(--color-text-muted); margin-top: 6px;">
+                                    <i class="fa-solid fa-location-dot"></i> R02 - TAICHUNG - Building A<br>
+                                    <i class="fa-solid fa-user-tie"></i> Quynh Nguyen Phan Truc
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tuesday -->
+                        <div class="glass-panel" style="padding: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 12px;">
+                                <div><span class="timetable-day-num" data-day-offset="1" style="background: var(--swinburne-red); color: #fff; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.8rem;">28</span> <strong style="font-size: 0.85rem; color: #fff;">Tuesday</strong></div>
+                                <span style="font-size: 0.72rem; color: var(--color-text-muted);">1 class</span>
+                            </div>
+
+                            <div class="schedule-card" data-course="AU014" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-left: 3px solid #3b82f6; padding: 10px; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <strong style="color: #3b82f6; font-size: 0.85rem;">AU014</strong>
+                                    <span style="font-size: 0.7rem; color: var(--color-text-muted);">8:00 AM - 10:00 AM</span>
+                                </div>
+                                <span class="score-badge primary" style="font-size: 0.65rem; padding: 2px 6px; margin-bottom: 6px; display: inline-block;">Lecture</span>
+                                <p style="font-size: 0.8rem; font-weight: bold; color: #fff; margin: 4px 0;">Physical Education: Vovinam Level 1</p>
+                                <div style="font-size: 0.72rem; color: var(--color-text-muted); margin-top: 6px;">
+                                    <i class="fa-solid fa-location-dot"></i> room12 - Vovinam Class<br>
+                                    <i class="fa-solid fa-user-tie"></i> Luật Võ Hoàng
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Wednesday -->
+                        <div class="glass-panel" style="padding: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 12px;">
+                                <div><span class="timetable-day-num" data-day-offset="2" style="background: #10b981; color: #fff; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.8rem;">29</span> <strong style="font-size: 0.85rem; color: #fff;">Wednesday</strong></div>
+                                <span style="font-size: 0.72rem; color: var(--color-text-muted);">1 class</span>
+                            </div>
+
+                            <div class="schedule-card" data-course="TEC004" style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-left: 4px solid #10b981; padding: 10px; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <strong style="color: #10b981; font-size: 0.85rem;">TEC004</strong>
+                                    <span style="font-size: 0.7rem; color: var(--color-text-muted);">7:00 AM - 11:00 AM</span>
+                                </div>
+                                <span class="score-badge success" style="font-size: 0.65rem; padding: 2px 6px; margin-bottom: 6px; display: inline-block;">Lecture</span>
+                                <p style="font-size: 0.8rem; font-weight: bold; color: #fff; margin: 4px 0;">Advanced Computer Programming</p>
+                                <div style="font-size: 0.72rem; color: var(--color-text-muted); margin-top: 6px;">
+                                    <i class="fa-solid fa-location-dot"></i> R01 - TAIPEI - Building A<br>
+                                    <i class="fa-solid fa-user-tie"></i> Hoang Nguyen Trong
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Thursday -->
+                        <div class="glass-panel" style="padding: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 12px;">
+                                <div><span class="timetable-day-num" data-day-offset="3" style="background: #10b981; color: #fff; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.8rem;">30</span> <strong style="font-size: 0.85rem; color: #fff;">Thursday</strong></div>
+                                <span style="font-size: 0.72rem; color: var(--color-text-muted);">3 classes</span>
+                            </div>
+
+                            <div class="schedule-card" data-course="AU014" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-left: 3px solid #3b82f6; padding: 10px; border-radius: 6px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <strong style="color: #3b82f6; font-size: 0.85rem;">AU014</strong>
+                                    <span style="font-size: 0.7rem; color: var(--color-text-muted);">8:00 AM - 10:00 AM</span>
+                                </div>
+                                <span class="score-badge primary" style="font-size: 0.65rem; padding: 2px 6px; margin-bottom: 6px; display: inline-block;">Lecture</span>
+                                <p style="font-size: 0.8rem; font-weight: bold; color: #fff; margin: 4px 0;">Physical Education: Vovinam Level 1</p>
+                                <div style="font-size: 0.72rem; color: var(--color-text-muted); margin-top: 6px;">
+                                    <i class="fa-solid fa-location-dot"></i> room12 - Vovinam Class<br>
+                                    <i class="fa-solid fa-user-tie"></i> Luật Võ Hoàng
+                                </div>
+                            </div>
+
+                            <div class="schedule-card" data-course="SE001" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-left: 3px solid #f59e0b; padding: 10px; border-radius: 6px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <strong style="color: #f59e0b; font-size: 0.85rem;">SE001</strong>
+                                    <span style="font-size: 0.7rem; color: var(--color-text-muted);">10:00 AM - 1:00 PM</span>
+                                </div>
+                                <span class="score-badge warning" style="font-size: 0.65rem; padding: 2px 6px; margin-bottom: 6px; display: inline-block;">Lecture</span>
+                                <p style="font-size: 0.8rem; font-weight: bold; color: #fff; margin: 4px 0;">Electronics 1</p>
+                                <div style="font-size: 0.72rem; color: var(--color-text-muted); margin-top: 6px;">
+                                    <i class="fa-solid fa-location-dot"></i> R04 - INNOVATION - Building A<br>
+                                    <i class="fa-solid fa-user-tie"></i> Tra Ngo Luong Thanh
+                                </div>
+                            </div>
+
+                            <div class="schedule-card" data-course="AU002" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-left: 3px solid #f59e0b; padding: 10px; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <strong style="color: #f59e0b; font-size: 0.85rem;">AU002</strong>
+                                    <span style="font-size: 0.7rem; color: var(--color-text-muted);">1:30 PM - 3:30 PM</span>
+                                </div>
+                                <span class="score-badge warning" style="font-size: 0.65rem; padding: 2px 6px; margin-bottom: 6px; display: inline-block;">Lecture</span>
+                                <p style="font-size: 0.8rem; font-weight: bold; color: #fff; margin: 4px 0;">Chinese 2 - Expression & Application</p>
+                                <div style="font-size: 0.72rem; color: var(--color-text-muted); margin-top: 6px;">
+                                    <i class="fa-solid fa-location-dot"></i> R02 - TAICHUNG - Building A<br>
+                                    <i class="fa-solid fa-user-tie"></i> Quynh Nguyen Phan Truc
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Friday -->
+                        <div class="glass-panel" style="padding: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 12px;">
+                                <div><span class="timetable-day-num" data-day-offset="4" style="background: #10b981; color: #fff; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.8rem;">31</span> <strong style="font-size: 0.85rem; color: #fff;">Friday</strong></div>
+                                <span style="font-size: 0.72rem; color: var(--color-text-muted);">1 class</span>
+                            </div>
+
+                            <div class="schedule-card" data-course="SE005" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-left: 3px solid #10b981; padding: 10px; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <strong style="color: #10b981; font-size: 0.85rem;">SE005</strong>
+                                    <span style="font-size: 0.7rem; color: var(--color-text-muted);">10:00 AM - 1:00 PM</span>
+                                </div>
+                                <span class="score-badge success" style="font-size: 0.65rem; padding: 2px 6px; margin-bottom: 6px; display: inline-block;">Lecture</span>
+                                <p style="font-size: 0.8rem; font-weight: bold; color: #fff; margin: 4px 0;">Linear Algebra</p>
+                                <div style="font-size: 0.72rem; color: var(--color-text-muted); margin-top: 6px;">
+                                    <i class="fa-solid fa-location-dot"></i> R02 - TAICHUNG - Building A<br>
+                                    <i class="fa-solid fa-user-tie"></i> Tuan Le Hoang Viet
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Saturday -->
+                        <div class="glass-panel" style="padding: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 12px;">
+                                <div><span class="timetable-day-num" data-day-offset="5" style="background: #10b981; color: #fff; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.8rem;">01</span> <strong style="font-size: 0.85rem; color: #fff;">Saturday</strong></div>
+                                <span style="font-size: 0.72rem; color: var(--color-text-muted);">1 class</span>
+                            </div>
+
+                            <div class="schedule-card" data-course="SE002" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-left: 3px solid #ef4444; padding: 10px; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <strong style="color: #ef4444; font-size: 0.85rem;">SE002</strong>
+                                    <span style="font-size: 0.7rem; color: var(--color-text-muted);">11:00 AM - 3:00 PM</span>
+                                </div>
+                                <span class="score-badge danger" style="font-size: 0.65rem; padding: 2px 6px; margin-bottom: 6px; display: inline-block;">Lecture</span>
+                                <p style="font-size: 0.8rem; font-weight: bold; color: #fff; margin: 4px 0;">Electronics Lab 1</p>
+                                <div style="font-size: 0.72rem; color: var(--color-text-muted); margin-top: 6px;">
+                                    <i class="fa-solid fa-location-dot"></i> R04 - INNOVATION - Building A<br>
+                                    <i class="fa-solid fa-user-tie"></i> Tra Ngo Luong Thanh
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sunday -->
+                        <div class="glass-panel" style="padding: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 12px;">
+                                <div><span class="timetable-day-num" data-day-offset="6" style="background: rgba(255,255,255,0.2); color: #fff; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.8rem;">02</span> <strong style="font-size: 0.85rem; color: #fff;">Sunday</strong></div>
+                                <span style="font-size: 0.72rem; color: var(--color-text-muted);">0 classes</span>
+                            </div>
+                            <div style="text-align: center; padding: 2rem 0; color: var(--color-text-muted); font-size: 0.8rem;">
+                                No classes
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- Settings Page -->
+                <section id="settings" class="page">
+                    <div class="page-header">
+                        <div>
+                            <h2>Cài Đặt Hệ Thống (System Settings)</h2>
+                            <p style="color: var(--color-text-muted); font-size: 0.9rem; margin-top: 4px;">Cấu hình tham số mô hình AI, trọng số điểm Active Learning & thiết lập cảnh báo</p>
+                        </div>
+                        <div class="controls">
+                            <button class="btn btn-primary" id="saveSettingsBtn" style="background: var(--color-success); border: none;">
+                                <i class="fa-solid fa-floppy-disk"></i> Lưu Cấu Hình
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                        <!-- AI Model & Detection Thresholds -->
+                        <div class="glass-panel" style="padding: 1.5rem;">
+                            <h3 style="font-size: 1.1rem; color: var(--color-text-heading); margin-bottom: 1.2rem; display: flex; align-items: center; gap: 10px;">
+                                <i class="fa-solid fa-microchip" style="color: var(--color-primary);"></i> Cấu Hình Nhận Diện AI (YOLO & MediaPipe)
+                            </h3>
+
+                            <div style="margin-bottom: 1.2rem;">
+                                <label style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px; color: var(--color-text-muted);">
+                                    <span>Ngưỡng tin cậy YOLOv8 (Confidence Threshold):</span>
+                                    <strong id="confValDisplay" style="color: var(--color-primary);">50%</strong>
+                                </label>
+                                <input type="range" id="yoloConfInput" min="20" max="90" value="50" style="width: 100%; accent-color: var(--swinburne-red);">
+                            </div>
+
+                            <div style="margin-bottom: 1.2rem;">
+                                <label style="display: block; font-size: 0.85rem; margin-bottom: 6px; color: var(--color-text-muted);">Độ nhạy phát hiện tư thế MediaPipe Pose:</label>
+                                <select id="poseSensitivitySelect" style="width: 100%; padding: 8px 12px; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: #fff;">
+                                    <option value="high">Cao (High - Nhận diện phản ứng nhanh)</option>
+                                    <option value="medium" selected>Trung bình (Standard - Khuyên dùng)</option>
+                                    <option value="low">Thấp (Strict - Tránh nhiễu bóng)</option>
+                                </select>
+                            </div>
+
+                            <div style="margin-bottom: 1.2rem;">
+                                <label style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px; color: var(--color-text-muted);">
+                                    <span>Tần số phân tích khung hình (Edge Sampling Rate):</span>
+                                    <strong id="fpsValDisplay" style="color: var(--color-success);">15 FPS</strong>
+                                </label>
+                                <input type="range" id="fpsSamplingInput" min="5" max="30" step="5" value="15" style="width: 100%; accent-color: var(--color-success);">
+                            </div>
+                        </div>
+
+                        <!-- Active Learning Scoring Weights -->
+                        <div class="glass-panel" style="padding: 1.5rem;">
+                            <h3 style="font-size: 1.1rem; color: var(--color-text-heading); margin-bottom: 1.2rem; display: flex; align-items: center; gap: 10px;">
+                                <i class="fa-solid fa-calculator" style="color: var(--color-warning);"></i> Trọng Số Chấm Điểm Active Learning
+                            </h3>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                                <div>
+                                    <label style="font-size: 0.8rem; color: var(--color-text-muted);">Giơ tay phát biểu (+Điểm):</label>
+                                    <input type="number" id="handRaisePointsInput" value="10" min="1" max="50" style="width: 100%; padding: 8px; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: #fff; margin-top: 4px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.8rem; color: var(--color-text-muted);">Tập trung nghe giảng (+Điểm):</label>
+                                    <input type="number" id="focusPointsInput" value="1" min="0" max="10" style="width: 100%; padding: 8px; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: #fff; margin-top: 4px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.8rem; color: var(--color-text-muted);">Mất tập trung (-Điểm trừ):</label>
+                                    <input type="number" id="distractedPointsInput" value="2" min="0" max="20" style="width: 100%; padding: 8px; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: #fff; margin-top: 4px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notification & System Controls -->
+                    <div class="glass-panel" style="padding: 1.5rem;">
+                        <h3 style="font-size: 1.1rem; color: var(--color-text-heading); margin-bottom: 1.2rem; display: flex; align-items: center; gap: 10px;">
+                            <i class="fa-solid fa-bell" style="color: var(--swinburne-red);"></i> Cài Đặt Cảnh Báo & Âm Thanh
+                        </h3>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid var(--border-color);">
+                                <div>
+                                    <strong style="font-size: 0.9rem; color: #fff; display: block;">Phát Âm Thanh Cảnh Báo khi Giơ Tay</strong>
+                                    <span style="font-size: 0.8rem; color: var(--color-text-muted);">Phát tiếng bip nhẹ khi AI phát hiện sinh viên giơ tay</span>
+                                </div>
+                                <input type="checkbox" id="soundAlertToggle" checked style="width: 20px; height: 20px; accent-color: var(--swinburne-red);">
+                            </div>
+
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid var(--border-color);">
+                                <div>
+                                    <strong style="font-size: 0.9rem; color: #fff; display: block;">Cảnh Báo Mất Tập Trung Tự Động</strong>
+                                    <span style="font-size: 0.8rem; color: var(--color-text-muted);">Gửi thông báo khi sinh viên mất tập trung kéo dài</span>
+                                </div>
+                                <input type="checkbox" id="distractionAlertToggle" checked style="width: 20px; height: 20px; accent-color: var(--swinburne-red);">
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 1rem;">
+                            <button class="btn" id="resetSettingsBtn" style="background: rgba(255,255,255,0.1); color: #fff;">Khôi Phục Mặc Định</button>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Overlay & Student Focus Panel -->
+    <div class="focus-overlay" id="focusOverlay"></div>
+    <aside class="student-focus-panel glass-panel" id="studentFocusPanel">
+        <div class="panel-header">
+            <h3>Chi tiết Sinh Viên</h3>
+            <button class="icon-btn close-focus" id="closeFocusBtn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="focus-content" style="margin-top: 1.5rem;">
+            <div class="focus-profile">
+                <div class="avatar" id="focusAvatar">SV</div>
+                <div class="focus-details">
+                    <h4 id="focusName">Tên Sinh Viên</h4>
+                    <p id="focusId">ID: 12345</p>
+                </div>
+            </div>
+            <div class="focus-stats">
+                <div class="stat-item">
+                    <span>Active Score</span>
+                    <strong id="focusScore" style="color: var(--color-success)">0</strong>
+                </div>
+                <div class="stat-item">
+                    <span>Trạng thái</span>
+                    <strong id="focusStatus">Đang tập trung</strong>
+                </div>
+            </div>
+            <div class="focus-chart-wrapper">
+                <canvas id="studentFocusChart"></canvas>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Upload Course Selector Modal -->
+    <div class="modal-overlay" id="uploadModalOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center;">
+        <div class="modal-card glass-panel" style="background: rgba(15, 23, 42, 0.95); border: 1px solid var(--border-color); border-radius: 16px; padding: 2rem; width: 90%; max-width: 520px; box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                <h3 style="font-size: 1.2rem; font-weight: bold; color: #fff; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-cloud-arrow-up" style="color: var(--swinburne-red);"></i> Chọn Môn Học Cho Video Phân Tích AI
+                </h3>
+                <button class="icon-btn" id="closeUploadModalBtn" style="color: var(--color-text-muted); cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div style="margin-bottom: 1.2rem;">
+                <label style="font-size: 0.85rem; color: var(--color-text-muted); display: block; margin-bottom: 6px; font-weight: 600;">Môn Học Bài Giảng Video (Select Course):</label>
+                <select id="modalCourseSelect" style="width: 100%; padding: 12px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid var(--border-color); color: #fff; font-size: 0.95rem; outline: none;">
+                    <option value="TEC004 - Advanced Computer Programming">TEC004 - Advanced Computer Programming</option>
+                    <option value="SE005 - Linear Algebra">SE005 - Linear Algebra</option>
+                    <option value="SE001 - Electronics 1">SE001 - Electronics 1</option>
+                    <option value="SE002 - Electronics Lab 1">SE002 - Electronics Lab 1</option>
+                    <option value="AU002 - Chinese 2 - Expression & Application">AU002 - Chinese 2</option>
+                    <option value="AU014 - Physical Education: Vovinam Level 1">AU014 - Physical Education: Vovinam</option>
+                    <option value="custom">Môn học khác (Nhập tùy chỉnh)...</option>
+                </select>
+            </div>
+
+            <div id="customCourseInputContainer" style="display: none; margin-bottom: 1.2rem;">
+                <label style="font-size: 0.85rem; color: var(--color-text-muted); display: block; margin-bottom: 6px;">Tên Môn Học Tùy Chỉnh:</label>
+                <input type="text" id="modalCustomCourseInput" placeholder="Ví dụ: CS202 - Data Structures..." style="width: 100%; padding: 10px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid var(--border-color); color: #fff;">
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="font-size: 0.85rem; color: var(--color-text-muted); display: block; margin-bottom: 6px; font-weight: 600;">Giảng Viên Phụ Trách (Lecturer):</label>
+                <input type="text" id="modalLecturerInput" value="Mr. Arthur Nguyen" style="width: 100%; padding: 10px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid var(--border-color); color: #fff;">
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn btn-secondary" id="cancelUploadModalBtn">Hủy</button>
+                <button class="btn btn-primary" id="confirmUploadModalBtn" style="background: var(--swinburne-red); border: none; padding: 10px 20px; font-weight: bold;"><i class="fa-solid fa-check"></i> Xác Nhận Tải Up & Phân Tích</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View All Students Roster Modal -->
+    <div class="modal-overlay" id="studentsModalOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center;">
+        <div class="modal-card glass-panel" style="background: rgba(15, 23, 42, 0.95); border: 1px solid var(--border-color); border-radius: 16px; padding: 2rem; width: 90%; max-width: 720px; box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                <h3 style="font-size: 1.2rem; font-weight: bold; color: #fff; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-users" style="color: var(--swinburne-red);"></i> Danh Sách Sinh Viên Lớp Học (Active Roster)
+                </h3>
+                <button class="icon-btn" id="closeStudentsModalBtn" style="color: var(--color-text-muted); cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div style="max-height: 400px; overflow-y: auto;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--border-color); color: var(--color-text-muted); font-size: 0.8rem; text-transform: uppercase;">
+                            <th style="padding: 10px;">Mã SV</th>
+                            <th style="padding: 10px;">Họ và Tên</th>
+                            <th style="padding: 10px;">Email</th>
+                            <th style="padding: 10px;">Active Score</th>
+                            <th style="padding: 10px; text-align: center;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allStudentsTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                <button class="btn btn-secondary" id="closeStudentsModalBtn2">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/charts.js?v=6000"></script>
+    <script src="js/app.js?v=6000"></script>
+</body>
+</html>
